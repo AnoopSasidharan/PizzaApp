@@ -1,0 +1,35 @@
+name: .NET
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    
+env:
+  AZURE_WEBAPP_NAME: pizza-app-sc
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+    - name: Restore dependencies
+      run: dotnet restore ${{github.workspace}}/PizzaApp/PizzaApp/PizzaApp.csproj
+    - name: Build
+      run: dotnet build ${{github.workspace}}/PizzaApp/PizzaApp/PizzaApp.csproj --no-restore
+    - name: Test
+      run: dotnet test ${{github.workspace}}/PizzaApp/PizzaApp/PizzaApp.csproj --no-build --verbosity normal
+    - name: Publish
+      run: dotnet publish ${{github.workspace}}/PizzaApp/PizzaApp/PizzaApp.csproj -c Release -o dotnetcorewebapp
+    - name: deploy to azure web api
+      uses: azure/webapps-deploy@v2
+      with:
+        app-name: ${{env.AZURE_WEBAPP_NAME}}
+        publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+        package: './dotnetcorewebapp'
