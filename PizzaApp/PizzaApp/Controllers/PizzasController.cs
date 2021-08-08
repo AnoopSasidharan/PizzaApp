@@ -63,7 +63,7 @@ namespace PizzaApp.Controllers
             var pizza = _pizas.FirstOrDefault(p => p.Id == Id);
             if (pizza == null)
             {
-                return NotFound();
+                return BadRequest();
             }
             _pizas.Remove(pizza);
             return NoContent();
