@@ -38,7 +38,6 @@ namespace PizzaApp.Controllers
         [HttpGet()]
         public ActionResult<IEnumerable<Pizza>> GetPizzas()
         {
-            //var pizzas = _pizas;
             var pizzas = _pizzaRepository.GetPizzas();
             return Ok(pizzas);
         }
@@ -55,9 +54,6 @@ namespace PizzaApp.Controllers
         [HttpPost()]
         public ActionResult CreatePizza([FromBody] Pizza pizza)
         {
-            //int maxId = _pizas.Max(p => p.Id);
-            //pizza.Id = maxId + 1;
-            //_pizas.Add(pizza);
             _pizzaRepository.AddPizza(pizza);
             _pizzaRepository.Save();
             return CreatedAtRoute("GetPizzaById", new { Id = pizza.Id }, pizza);
