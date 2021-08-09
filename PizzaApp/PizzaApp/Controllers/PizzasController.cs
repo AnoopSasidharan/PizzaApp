@@ -44,7 +44,7 @@ namespace PizzaApp.Controllers
         [HttpGet("{Id}",Name ="GetPizzaById")]
         public ActionResult<Pizza> GetPizzas(int Id)
         {
-            var pizza = _pizas.FirstOrDefault(p => p.Id == Id);
+            var pizza = _pizzaRepository.GetPizzaById(Id);
             if(pizza==null)
             {
                 return NotFound();
@@ -61,7 +61,7 @@ namespace PizzaApp.Controllers
         [HttpDelete("{Id}")]
         public ActionResult DeletePizza(int Id)
         {
-            var pizza = _pizas.FirstOrDefault(p => p.Id == Id);
+            var pizza = _pizzaRepository.GetPizzaById(Id);
             if (pizza == null)
             {
                 return BadRequest();
