@@ -12,23 +12,6 @@ namespace PizzaApp.Controllers
     [Route("api/[controller]")]
     public class PizzasController : ControllerBase
     {
-        private static List<Pizza> _pizas = new()
-        {
-            new Pizza()
-            {
-                Id=1,
-                Title="Cheese",
-                Description="Cheese",
-                Price=12.99
-            },
-            new Pizza()
-            {
-                Id = 2,
-                Title = "Steak",
-                Description = "Steak",
-                Price = 9.99
-            }
-        };
         private readonly IPizzaRepository _pizzaRepository;
 
         public PizzasController(IPizzaRepository pizzaRepository)
@@ -66,7 +49,8 @@ namespace PizzaApp.Controllers
             {
                 return BadRequest();
             }
-            _pizas.Remove(pizza);
+            _pizzaRepository.RemovePizza(pizza);
+            _pizzaRepository.Save();
             return NoContent();
         }
     }
