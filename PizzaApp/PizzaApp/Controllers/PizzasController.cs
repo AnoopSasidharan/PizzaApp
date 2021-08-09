@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PizzaApp.Models;
+using PizzaApp.Entity;
+using PizzaApp.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,15 +29,17 @@ namespace PizzaApp.Controllers
                 Price = 9.99
             }
         };
+        private readonly IPizzaRepository _pizzaRepository;
 
-        public PizzasController()
+        public PizzasController(IPizzaRepository pizzaRepository)
         {
-
+            this._pizzaRepository = pizzaRepository;
         }
         [HttpGet()]
         public ActionResult<IEnumerable<Pizza>> GetPizzas()
         {
-            var pizzas = _pizas;
+            //var pizzas = _pizas;
+            var pizzas = _pizzaRepository.GetPizzas();
             return Ok(pizzas);
         }
         [HttpGet("{Id}",Name ="GetPizzaById")]

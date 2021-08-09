@@ -2,11 +2,14 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using PizzaApp.Data;
+using PizzaApp.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,8 +29,12 @@ namespace PizzaApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddDbContext<PizzaDbContext>(opt =>
+            {
+                opt.UseSqlite(Configuration.GetConnectionString("Pizzadb"));
+            });
             services.AddControllers();
+            services.AddTransient<IPizzaRepository, PizzaRepository>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PizzaApp", Version = "v1" });
