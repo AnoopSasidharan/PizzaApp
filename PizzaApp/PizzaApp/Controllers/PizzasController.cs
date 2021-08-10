@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using PizzaApp.Entity;
+using PizzaApp.Models;
 using PizzaApp.Services;
 using System;
 using System.Collections.Generic;
@@ -13,10 +15,12 @@ namespace PizzaApp.Controllers
     public class PizzasController : ControllerBase
     {
         private readonly IPizzaRepository _pizzaRepository;
+        private readonly IMapper _mapper;
 
-        public PizzasController(IPizzaRepository pizzaRepository)
+        public PizzasController(IPizzaRepository pizzaRepository, IMapper mapper)
         {
             this._pizzaRepository = pizzaRepository;
+            this._mapper = mapper;
         }
         [HttpGet()]
         public ActionResult<IEnumerable<Pizza>> GetPizzas()
@@ -35,8 +39,10 @@ namespace PizzaApp.Controllers
             return Ok(pizza);
         }
         [HttpPost()]
-        public ActionResult CreatePizza([FromBody] Pizza pizza)
+        public ActionResult CreatePizza([FromBody] PizzaDto pizzaDto)
         {
+            var pizza = _mapper.Map<Pizza>(pizzaDto);
+
             _pizzaRepository.AddPizza(pizza);
             _pizzaRepository.Save();
             return CreatedAtRoute("GetPizzaById", new { Id = pizza.Id }, pizza);
