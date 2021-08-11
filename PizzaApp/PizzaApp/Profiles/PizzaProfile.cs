@@ -13,6 +13,7 @@ namespace PizzaApp.Profiles
         public PizzaProfile()
         {
             CreateMap<PizzaDto, Pizza>();
+            CreateMap<PizzaUpdateDto, Pizza>();
         }
     }
 }

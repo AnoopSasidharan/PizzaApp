@@ -33,7 +33,8 @@ namespace PizzaApp
             {
                 opt.UseSqlite(Configuration.GetConnectionString("Pizzadb"));
             });
-            services.AddControllers();
+            services.AddControllers()
+                .AddNewtonsoftJson();
             services.AddTransient<IPizzaRepository, PizzaRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddSwaggerGen(c =>

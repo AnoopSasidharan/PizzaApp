@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using PizzaApp.Entity;
 using PizzaApp.Models;
@@ -59,5 +60,36 @@ namespace PizzaApp.Controllers
             _pizzaRepository.Save();
             return NoContent();
         }
+        //[HttpPatch("{Id}")]
+        //public ActionResult PatchPizza(int Id, [FromBody] JsonPatchDocument<PizzaDto> patchDocument)
+        //{
+        //    if(!ModelState.IsValid)
+        //    {
+        //        return BadRequest();
+        //    }
+
+        //    var pizza = _pizzaRepository.GetPizzaById(Id);
+
+        //    if(pizza==null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    var pizzaDto = _mapper.Map<PizzaDto>(pizza);
+        //    patchDocument.ApplyTo(pizzaDto, ModelState);
+        //}
+        [HttpPut("{Id}")]
+        public ActionResult UpdatePizza(int Id, PizzaUpdateDto pizzaUpdate)
+        {
+            var pizza = _pizzaRepository.GetPizzaById(Id);
+            if(pizza==null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(pizzaUpdate, pizza);
+            _pizzaRepository.Save();
+            return NoContent();
+        }
+        
     }
 }
