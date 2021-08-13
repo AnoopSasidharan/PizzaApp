@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 using PizzaApp.Data;
 using PizzaApp.Services;
 using System;
@@ -34,7 +35,10 @@ namespace PizzaApp
                 opt.UseSqlite(Configuration.GetConnectionString("Pizzadb"));
             });
             services.AddControllers()
-                .AddNewtonsoftJson();
+                .AddNewtonsoftJson(opt => 
+                {
+                    opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                });
             services.AddTransient<IPizzaRepository, PizzaRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddSwaggerGen(c =>

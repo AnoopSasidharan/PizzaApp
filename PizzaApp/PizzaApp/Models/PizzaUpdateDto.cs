@@ -10,6 +10,7 @@ namespace PizzaApp.Models
     {
         [Required]
         public string Title { get; set; }
+        [Required]
         public string Description { get; set; }
         [Required]
         [Range(1, 100)]

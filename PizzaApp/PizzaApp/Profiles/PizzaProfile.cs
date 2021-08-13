@@ -14,6 +14,7 @@ namespace PizzaApp.Profiles
         {
             CreateMap<PizzaDto, Pizza>();
             CreateMap<PizzaUpdateDto, Pizza>();
+            CreateMap<Pizza, PizzaUpdateDto>();
         }
     }
 }

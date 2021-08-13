@@ -60,23 +60,32 @@ namespace PizzaApp.Controllers
             _pizzaRepository.Save();
             return NoContent();
         }
-        //[HttpPatch("{Id}")]
-        //public ActionResult PatchPizza(int Id, [FromBody] JsonPatchDocument<PizzaDto> patchDocument)
-        //{
-        //    if(!ModelState.IsValid)
-        //    {
-        //        return BadRequest();
-        //    }
+        [HttpPatch("{Id}")]
+        public ActionResult PatchPizza(int Id, [FromBody] JsonPatchDocument<PizzaUpdateDto> patchDocument)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
-        //    var pizza = _pizzaRepository.GetPizzaById(Id);
+            var pizza = _pizzaRepository.GetPizzaById(Id);
 
-        //    if(pizza==null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var pizzaDto = _mapper.Map<PizzaDto>(pizza);
-        //    patchDocument.ApplyTo(pizzaDto, ModelState);
-        //}
+            if (pizza == null)
+            {
+                return NotFound();
+            }
+            var pizzaToUpdate = _mapper.Map<PizzaUpdateDto>(pizza);
+            patchDocument.ApplyTo(pizzaToUpdate, ModelState);
+
+            if(!TryValidateModel(pizzaToUpdate))
+            {
+                return ValidationProblem(ModelState);
+            }
+
+            _mapper.Map(pizzaToUpdate, pizza);
+            _pizzaRepository.Save();
+            return NoContent();
+        }
         [HttpPut("{Id}")]
         public ActionResult UpdatePizza(int Id, PizzaUpdateDto pizzaUpdate)
         {
