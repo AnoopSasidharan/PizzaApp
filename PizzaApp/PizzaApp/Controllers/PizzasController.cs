@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using PizzaApp.Entity;
 using PizzaApp.Models;
+using PizzaApp.Parameters;
 using PizzaApp.Services;
 using System;
 using System.Collections.Generic;
@@ -24,31 +25,37 @@ namespace PizzaApp.Controllers
             this._mapper = mapper;
         }
         [HttpGet()]
-        public ActionResult<IEnumerable<Pizza>> GetPizzas()
+        //[Produces("application/xml")]
+        [ResponseCache(Duration =40)]
+        public ActionResult<IEnumerable<Pizza>> GetPizzas([FromQuery] InputParameters parameters)
         {
-            var pizzas = _pizzaRepository.GetPizzas();
+            var pizzas = _pizzaRepository.GetPizzas(parameters);
             return Ok(pizzas);
         }
         [HttpGet("{Id}",Name ="GetPizzaById")]
-        public ActionResult<Pizza> GetPizzas(int Id)
+        [ResponseCache(CacheProfileName = "120MinProfile")]
+        public ActionResult<PizzaDto> GetPizzas(int Id)
         {
             var pizza = _pizzaRepository.GetPizzaById(Id);
             if(pizza==null)
             {
                 return NotFound();
             }
-            return Ok(pizza);
+            var selectedPizza = _mapper.Map<PizzaDto>(pizza);
+            selectedPizza.Links = CreateLinks(Id);
+           
+            return Ok(selectedPizza);
         }
-        [HttpPost()]
-        public ActionResult CreatePizza([FromBody] PizzaDto pizzaDto)
+        [HttpPost(Name ="CreatePizza")]
+        public ActionResult CreatePizza([FromBody] PizzaCreationDto pizzaDto)
         {
             var pizza = _mapper.Map<Pizza>(pizzaDto);
 
             _pizzaRepository.AddPizza(pizza);
-            _pizzaRepository.Save();
+            _pizzaRepository.SaveAsync();
             return CreatedAtRoute("GetPizzaById", new { Id = pizza.Id }, pizza);
         }
-        [HttpDelete("{Id}")]
+        [HttpDelete("{Id}", Name ="DeletePizza")]
         public ActionResult DeletePizza(int Id)
         {
             var pizza = _pizzaRepository.GetPizzaById(Id);
@@ -57,10 +64,10 @@ namespace PizzaApp.Controllers
                 return BadRequest();
             }
             _pizzaRepository.RemovePizza(pizza);
-            _pizzaRepository.Save();
+            _pizzaRepository.SaveAsync();
             return NoContent();
         }
-        [HttpPatch("{Id}")]
+        [HttpPatch("{Id}", Name ="PatchPizza")]
         public ActionResult PatchPizza(int Id, [FromBody] JsonPatchDocument<PizzaUpdateDto> patchDocument)
         {
             if (!ModelState.IsValid)
@@ -83,10 +90,10 @@ namespace PizzaApp.Controllers
             }
 
             _mapper.Map(pizzaToUpdate, pizza);
-            _pizzaRepository.Save();
+            _pizzaRepository.SaveAsync();
             return NoContent();
         }
-        [HttpPut("{Id}")]
+        [HttpPut("{Id}", Name ="PutPizza")]
         public ActionResult UpdatePizza(int Id, PizzaUpdateDto pizzaUpdate)
         {
             var pizza = _pizzaRepository.GetPizzaById(Id);
@@ -96,8 +103,40 @@ namespace PizzaApp.Controllers
             }
 
             _mapper.Map(pizzaUpdate, pizza);
-            _pizzaRepository.Save();
+            _pizzaRepository.SaveAsync();
             return NoContent();
+        }
+        private IEnumerable<LinksDto> CreateLinks(int Id)
+        {
+            var links = new List<LinksDto>();
+            links.Add(new LinksDto()
+            {
+                Rel = "Self",
+                Method = "GET",
+                Href =Url.Link("GetPizzaById", new { Id })
+            });
+
+            links.Add(new LinksDto()
+            {
+                Rel = "delete_pizza",
+                Method = "DELETE",
+                Href = Url.Link("DeletePizza", new { Id })
+            });
+
+            links.Add(new LinksDto()
+            {
+                Rel = "partial_update_pizza",
+                Method = "PATCH",
+                Href = Url.Link("PatchPizza",new { Id })
+            });
+            links.Add(new LinksDto()
+            {
+                Rel = "full_update_pizza",
+                Method = "PUT",
+                Href = Url.Link("PutPizza", new { Id })
+            });
+
+            return links;
         }
         
     }

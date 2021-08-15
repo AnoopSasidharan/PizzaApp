@@ -30,15 +30,22 @@ namespace PizzaApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddResponseCaching();
             services.AddDbContext<PizzaDbContext>(opt =>
             {
                 opt.UseSqlite(Configuration.GetConnectionString("Pizzadb"));
             });
-            services.AddControllers()
-                .AddNewtonsoftJson(opt => 
+            services.AddControllers(opt =>
+            {
+                opt.CacheProfiles.Add("120MinProfile", new CacheProfile()
+                {
+                    Duration=120
+                });
+            })
+                .AddNewtonsoftJson(opt =>
                 {
                     opt.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                });
+                }).AddXmlDataContractSerializerFormatters();
             services.AddTransient<IPizzaRepository, PizzaRepository>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddSwaggerGen(c =>
@@ -58,6 +65,8 @@ namespace PizzaApp
             }
 
             app.UseHttpsRedirection();
+
+            app.UseResponseCaching();
 
             app.UseRouting();
 

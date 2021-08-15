@@ -1,5 +1,6 @@
 ﻿using PizzaApp.Data;
 using PizzaApp.Entity;
+using PizzaApp.Parameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,19 +27,28 @@ namespace PizzaApp.Services
             return _pizzaDbContext.Pizzas.Find(id);
         }
 
-        public IEnumerable<Pizza> GetPizzas()
+        public IEnumerable<Pizza> GetPizzas(InputParameters parameters)
         {
-            return _pizzaDbContext.Pizzas.ToList();
+            var pizzas = _pizzaDbContext.Pizzas as IQueryable<Pizza>;
+
+            if(!string.IsNullOrWhiteSpace(parameters.SearchBy))
+            {
+                pizzas = pizzas.Where(p => p.Title.StartsWith(parameters.SearchBy));
+            }
+
+            
+
+            return pizzas.ToList();
         }
 
         public void RemovePizza(Pizza pizza)
         {
-            this._pizzaDbContext.Remove(pizza);
+           this._pizzaDbContext.Pizzas.Remove(pizza);
         }
 
-        public bool Save()
+        public async Task<bool> SaveAsync()
         {
-            return _pizzaDbContext.SaveChanges() > 0;
+            return await _pizzaDbContext.SaveChangesAsync() > 0;
         }
     }
 }
