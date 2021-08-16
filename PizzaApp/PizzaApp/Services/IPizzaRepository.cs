@@ -7,9 +7,9 @@ namespace PizzaApp.Services
 {
     public interface IPizzaRepository
     {
-        IEnumerable<Pizza> GetPizzas(InputParameters parameters);
-        Pizza GetPizzaById(int id);
-        void AddPizza(Pizza pizza);
+        Task<IEnumerable<Pizza>> GetPizzasAsync(InputParameters parameters);
+        Task<Pizza> GetPizzaByIdAsync(int id);
+        Task AddPizzaAsync(Pizza pizza);
         void RemovePizza(Pizza pizza);
         Task<bool> SaveAsync();
     }

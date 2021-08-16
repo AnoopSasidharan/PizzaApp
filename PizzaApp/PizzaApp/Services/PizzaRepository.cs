@@ -1,4 +1,5 @@
-﻿using PizzaApp.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using PizzaApp.Data;
 using PizzaApp.Entity;
 using PizzaApp.Parameters;
 using System;
@@ -17,17 +18,17 @@ namespace PizzaApp.Services
             this._pizzaDbContext = pizzaDbContext;
         }
 
-        public void AddPizza(Pizza pizza)
+        public async Task AddPizzaAsync(Pizza pizza)
         {
-            _pizzaDbContext.Pizzas.Add(pizza);
+           await _pizzaDbContext.Pizzas.AddAsync(pizza);
         }
 
-        public Pizza GetPizzaById(int id)
+        public async Task<Pizza> GetPizzaByIdAsync(int id)
         {
-            return _pizzaDbContext.Pizzas.Find(id);
+            return await _pizzaDbContext.Pizzas.FindAsync(id);
         }
 
-        public IEnumerable<Pizza> GetPizzas(InputParameters parameters)
+        public async Task<IEnumerable<Pizza>> GetPizzasAsync(InputParameters parameters)
         {
             var pizzas = _pizzaDbContext.Pizzas as IQueryable<Pizza>;
 
@@ -36,9 +37,8 @@ namespace PizzaApp.Services
                 pizzas = pizzas.Where(p => p.Title.StartsWith(parameters.SearchBy));
             }
 
-            
 
-            return pizzas.ToList();
+            return await pizzas.ToListAsync();
         }
 
         public void RemovePizza(Pizza pizza)

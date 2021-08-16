@@ -27,16 +27,16 @@ namespace PizzaApp.Controllers
         [HttpGet()]
         //[Produces("application/xml")]
         [ResponseCache(Duration =40)]
-        public ActionResult<IEnumerable<Pizza>> GetPizzas([FromQuery] InputParameters parameters)
+        public async Task<ActionResult<IEnumerable<Pizza>>> GetPizzas([FromQuery] InputParameters parameters)
         {
-            var pizzas = _pizzaRepository.GetPizzas(parameters);
+            var pizzas = await _pizzaRepository.GetPizzasAsync(parameters);
             return Ok(pizzas);
         }
         [HttpGet("{Id}",Name ="GetPizzaById")]
         [ResponseCache(CacheProfileName = "120MinProfile")]
-        public ActionResult<PizzaDto> GetPizzas(int Id)
+        public async Task<ActionResult<PizzaDto>> GetPizzas(int Id)
         {
-            var pizza = _pizzaRepository.GetPizzaById(Id);
+            var pizza = await _pizzaRepository.GetPizzaByIdAsync(Id);
             if(pizza==null)
             {
                 return NotFound();
@@ -51,31 +51,31 @@ namespace PizzaApp.Controllers
         {
             var pizza = _mapper.Map<Pizza>(pizzaDto);
 
-            _pizzaRepository.AddPizza(pizza);
+            _pizzaRepository.AddPizzaAsync(pizza);
             _pizzaRepository.SaveAsync();
             return CreatedAtRoute("GetPizzaById", new { Id = pizza.Id }, pizza);
         }
         [HttpDelete("{Id}", Name ="DeletePizza")]
-        public ActionResult DeletePizza(int Id)
+        public async Task<ActionResult> DeletePizza(int Id)
         {
-            var pizza = _pizzaRepository.GetPizzaById(Id);
+            var pizza = await _pizzaRepository.GetPizzaByIdAsync(Id);
             if (pizza == null)
             {
                 return BadRequest();
             }
             _pizzaRepository.RemovePizza(pizza);
-            _pizzaRepository.SaveAsync();
+            await _pizzaRepository.SaveAsync();
             return NoContent();
         }
         [HttpPatch("{Id}", Name ="PatchPizza")]
-        public ActionResult PatchPizza(int Id, [FromBody] JsonPatchDocument<PizzaUpdateDto> patchDocument)
+        public async Task<ActionResult> PatchPizza(int Id, [FromBody] JsonPatchDocument<PizzaUpdateDto> patchDocument)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var pizza = _pizzaRepository.GetPizzaById(Id);
+            var pizza = await _pizzaRepository.GetPizzaByIdAsync(Id);
 
             if (pizza == null)
             {
@@ -90,20 +90,20 @@ namespace PizzaApp.Controllers
             }
 
             _mapper.Map(pizzaToUpdate, pizza);
-            _pizzaRepository.SaveAsync();
+            await _pizzaRepository.SaveAsync();
             return NoContent();
         }
         [HttpPut("{Id}", Name ="PutPizza")]
-        public ActionResult UpdatePizza(int Id, PizzaUpdateDto pizzaUpdate)
+        public async Task<ActionResult> UpdatePizza(int Id, PizzaUpdateDto pizzaUpdate)
         {
-            var pizza = _pizzaRepository.GetPizzaById(Id);
+            var pizza = await _pizzaRepository.GetPizzaByIdAsync(Id);
             if(pizza==null)
             {
                 return NotFound();
             }
 
             _mapper.Map(pizzaUpdate, pizza);
-            _pizzaRepository.SaveAsync();
+            await _pizzaRepository.SaveAsync();
             return NoContent();
         }
         private IEnumerable<LinksDto> CreateLinks(int Id)
