@@ -5,9 +5,7 @@ using PizzaApp.Entity;
 using PizzaApp.Models;
 using PizzaApp.Parameters;
 using PizzaApp.Services;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace PizzaApp.Controllers
@@ -26,36 +24,36 @@ namespace PizzaApp.Controllers
         }
         [HttpGet()]
         //[Produces("application/xml")]
-        [ResponseCache(Duration =40)]
+        [ResponseCache(Duration = 40)]
         public async Task<ActionResult<IEnumerable<Pizza>>> GetPizzas([FromQuery] InputParameters parameters)
         {
             var pizzas = await _pizzaRepository.GetPizzasAsync(parameters);
             return Ok(pizzas);
         }
-        [HttpGet("{Id}",Name ="GetPizzaById")]
+        [HttpGet("{Id}", Name = "GetPizzaById")]
         [ResponseCache(CacheProfileName = "120MinProfile")]
         public async Task<ActionResult<PizzaDto>> GetPizzas(int Id)
         {
             var pizza = await _pizzaRepository.GetPizzaByIdAsync(Id);
-            if(pizza==null)
+            if (pizza == null)
             {
                 return NotFound();
             }
             var selectedPizza = _mapper.Map<PizzaDto>(pizza);
             selectedPizza.Links = CreateLinks(Id);
-           
+
             return Ok(selectedPizza);
         }
-        [HttpPost(Name ="CreatePizza")]
-        public ActionResult CreatePizza([FromBody] PizzaCreationDto pizzaDto)
+        [HttpPost(Name = "CreatePizza")]
+        public async Task<ActionResult> CreatePizza([FromBody] PizzaCreationDto pizzaDto)
         {
             var pizza = _mapper.Map<Pizza>(pizzaDto);
 
-            _pizzaRepository.AddPizzaAsync(pizza);
-            _pizzaRepository.SaveAsync();
+            _pizzaRepository.AddPizza(pizza);
+            await _pizzaRepository.SaveAsync();
             return CreatedAtRoute("GetPizzaById", new { Id = pizza.Id }, pizza);
         }
-        [HttpDelete("{Id}", Name ="DeletePizza")]
+        [HttpDelete("{Id}", Name = "DeletePizza")]
         public async Task<ActionResult> DeletePizza(int Id)
         {
             var pizza = await _pizzaRepository.GetPizzaByIdAsync(Id);
@@ -67,7 +65,7 @@ namespace PizzaApp.Controllers
             await _pizzaRepository.SaveAsync();
             return NoContent();
         }
-        [HttpPatch("{Id}", Name ="PatchPizza")]
+        [HttpPatch("{Id}", Name = "PatchPizza")]
         public async Task<ActionResult> PatchPizza(int Id, [FromBody] JsonPatchDocument<PizzaUpdateDto> patchDocument)
         {
             if (!ModelState.IsValid)
@@ -84,7 +82,7 @@ namespace PizzaApp.Controllers
             var pizzaToUpdate = _mapper.Map<PizzaUpdateDto>(pizza);
             patchDocument.ApplyTo(pizzaToUpdate, ModelState);
 
-            if(!TryValidateModel(pizzaToUpdate))
+            if (!TryValidateModel(pizzaToUpdate))
             {
                 return ValidationProblem(ModelState);
             }
@@ -93,11 +91,11 @@ namespace PizzaApp.Controllers
             await _pizzaRepository.SaveAsync();
             return NoContent();
         }
-        [HttpPut("{Id}", Name ="PutPizza")]
+        [HttpPut("{Id}", Name = "PutPizza")]
         public async Task<ActionResult> UpdatePizza(int Id, PizzaUpdateDto pizzaUpdate)
         {
             var pizza = await _pizzaRepository.GetPizzaByIdAsync(Id);
-            if(pizza==null)
+            if (pizza == null)
             {
                 return NotFound();
             }
@@ -113,7 +111,7 @@ namespace PizzaApp.Controllers
             {
                 Rel = "Self",
                 Method = "GET",
-                Href =Url.Link("GetPizzaById", new { Id })
+                Href = Url.Link("GetPizzaById", new { Id })
             });
 
             links.Add(new LinksDto()
@@ -127,7 +125,7 @@ namespace PizzaApp.Controllers
             {
                 Rel = "partial_update_pizza",
                 Method = "PATCH",
-                Href = Url.Link("PatchPizza",new { Id })
+                Href = Url.Link("PatchPizza", new { Id })
             });
             links.Add(new LinksDto()
             {
@@ -138,6 +136,6 @@ namespace PizzaApp.Controllers
 
             return links;
         }
-        
+
     }
 }

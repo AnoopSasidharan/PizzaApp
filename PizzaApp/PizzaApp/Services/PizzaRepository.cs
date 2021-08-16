@@ -18,9 +18,13 @@ namespace PizzaApp.Services
             this._pizzaDbContext = pizzaDbContext;
         }
 
-        public async Task AddPizzaAsync(Pizza pizza)
+        public void AddPizza(Pizza pizza)
         {
-           await _pizzaDbContext.Pizzas.AddAsync(pizza);
+            if(pizza==null)
+            {
+                throw new ArgumentNullException(nameof(AddPizza));
+            }
+           _pizzaDbContext.Pizzas.Add(pizza);
         }
 
         public async Task<Pizza> GetPizzaByIdAsync(int id)
@@ -39,6 +43,10 @@ namespace PizzaApp.Services
 
 
             return await pizzas.ToListAsync();
+        }
+        public async Task<IEnumerable<Pizza>> GetPizzasByIdsAsync(IEnumerable<int> ids)
+        {
+            return await _pizzaDbContext.Pizzas.Where(p => ids.Contains(p.Id)).ToListAsync();
         }
 
         public void RemovePizza(Pizza pizza)
