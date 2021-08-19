@@ -7,7 +7,7 @@ on:
     branches: [ main ]
     
 env:
-  AZURE_WEBAPP_NAME: pizza-app-sc
+  AZURE_WEBAPP_NAME: PizzaMaintainApp
 jobs:
   build:
 
