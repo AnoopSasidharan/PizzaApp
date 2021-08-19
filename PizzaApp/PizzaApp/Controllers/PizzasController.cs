@@ -23,7 +23,6 @@ namespace PizzaApp.Controllers
             this._mapper = mapper;
         }
         [HttpGet()]
-        //[Produces("application/xml")]
         [ResponseCache(Duration = 40)]
         public async Task<ActionResult<IEnumerable<Pizza>>> GetPizzas([FromQuery] InputParameters parameters)
         {
